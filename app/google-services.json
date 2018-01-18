@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "1010365288034",
+    "firebase_url": "https://experiment-3f9b7.firebaseio.com",
+    "project_id": "experiment-3f9b7",
+    "storage_bucket": "experiment-3f9b7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1010365288034:android:6b52e9c21e654b41",
+        "android_client_info": {
+          "package_name": "android.hmkcode.com.experiment"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1010365288034-i8kh3bvs1hjpu9a9sgouamqfabq99h1a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBGHtBUBtY78irtMZlBkLIJNo5hxfQTR9o"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

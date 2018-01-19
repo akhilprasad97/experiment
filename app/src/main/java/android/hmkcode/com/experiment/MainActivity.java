@@ -41,6 +41,12 @@ public class MainActivity extends Activity {
     public static final String Name = "nameKey";
     //public static final String  = "phoneKey";
     public static final String Username = "usernameKey";
+    public static final String RegID = "regIDKey";
+    public static final String Recepient = "recepientKey";
+    public static final String Charge_of_recepient = "chargeofrecepient";
+    public static final String Recepient_latitude = "RecepientlatitudeKey";
+    public static final String Recepient_longitude = "RecepientlongitudeKey";
+
     SharedPreferences sharedpreferences;
 
     @Override
@@ -63,7 +69,7 @@ public class MainActivity extends Activity {
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new JSONTask().execute("http://192.168.1.111:8000/login");
+                new JSONTask().execute("http://10.1.85.42:8000/login");
             }
         });
 
@@ -190,6 +196,7 @@ public class MainActivity extends Activity {
                     //JSONObject indi = new JSONObject(s);
                     editor.putString(Name, indi.getString("name"));
                     editor.putString(Username, indi.getString("username"));
+                    editor.putString(RegID, indi.getString("id"));
                     editor.commit();
                     Intent i = new Intent(MainActivity.this, Login.class);
                     startActivity(i);

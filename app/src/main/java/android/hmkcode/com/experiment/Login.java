@@ -5,9 +5,14 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -35,7 +40,7 @@ import static android.hmkcode.com.experiment.MainActivity.*;
  * Created by akhilprasad97 on 16/1/18.
  */
 
-public class Login extends Activity{
+public class Login extends Activity implements LocationListener {
 
     TextView welcome;
     Button user_details;
@@ -43,10 +48,14 @@ public class Login extends Activity{
     Button start;
     Button req;
     Button stop;
+    TextView gps;
+
+    private LocationManager location;
 
     Intent background_intent;
     private Http_Background background;
     Context ctx;
+
     public Context getCtx() {
         return ctx;
     }
@@ -69,65 +78,87 @@ public class Login extends Activity{
         background = new Http_Background();
         background_intent = new Intent(getCtx(), background.getClass());
 
-        GPS_timer.schedule(timerTaskObj, 1000, 1500);
+        GPS_timer.schedule(timerTaskObj, 1000, 2500);
 
         SharedPreferences sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         Log.d("Login", "WORKING");
         //SharedPreferences.Editor editor = sharedpreferences.edit();
 
-        welcome = (TextView)findViewById(R.id.textView);
+        welcome = (TextView) findViewById(R.id.textView);
         //start = (Button)findViewById(R.id.button5);
         //stop = (Button)findViewById(R.id.button8);
-        user_details = (Button)findViewById(R.id.button6);
-        sharing_details = (Button)findViewById(R.id.button7);
-        req = (Button)findViewById(R.id.button5);
+        user_details = (Button) findViewById(R.id.button6);
+        sharing_details = (Button) findViewById(R.id.button7);
+        req = (Button) findViewById(R.id.button5);
+        gps = (TextView) findViewById(R.id.textView3);
 
         String name = sharedpreferences.getString(Name, "YO");
 
         welcome.setText(name);
+        //gps.setText("HELLO");
 
-        req.setOnClickListener(new View.OnClickListener() {
+        location = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        if (ActivityCompat.checkSelfPermission(Login.this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(Login.this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+
+        //gps.setText("HELLO");
+        Location coordinates = location.getLastKnownLocation(location.NETWORK_PROVIDER);
+        onLocationChanged(coordinates);
+
+
+        /*req.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent i = new Intent(Login.this, Charge.class);
                 startActivity(i);
             }
-        });
+        });*/
 
         //start.setOnClickListener(this);
         //stop.setOnClickListener(this);
+
+        req.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(Login.this, Request_Charge.class);
+                startActivity(i);
+            }
+        });
     }
 
-    /*@Override
-    public void onClick(View view) {
-        //ctx = this;
+    @Override
+    public void onLocationChanged(Location location) {
+        double longitude = location.getLongitude();
+        double latitude = location.getLatitude();
+        Log.d("lonitude",String.valueOf(longitude));
+        //gps.setText("Longitude"+longitude+"\n"+latitude);
+    }
 
-        //if(view == start){
-            //if (!isMyServiceRunning(background.getClass()))
+    @Override
+    public void onStatusChanged(String s, int i, Bundle bundle) {
 
-            /*startService(new Intent(this, Http_Background.class));
-             {
-                startService(background_intent);
-            }
-        }
-        /*else if(view == stop){
-            stopService(new Intent(this,Http_Background.class));
-            timerObj.cancel();
-        }
-    }*/
+    }
 
+    @Override
+    public void onProviderEnabled(String s) {
 
+    }
 
-    private boolean isMyServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                Log.i ("isMyServiceRunning?", true+"");
-                return true;
-            }
-        }
-        Log.i ("isMyServiceRunning?", false+"");
-        return false;
+    @Override
+    public void onProviderDisabled(String s) {
+
     }
 
     public class sendTask extends AsyncTask<String, String, String>{
@@ -179,6 +210,7 @@ public class Login extends Activity{
                 e.printStackTrace();
             }
             Log.d("YOYO",buffer.toString());
+
             return buffer.toString();
         }
 

@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="android.hmkcode.com.experiment">
 
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
@@ -36,6 +39,7 @@
             <category android:name="android.intent.category.DEFAULT" />
         </intent-filter>
         </activity>
+        <activity android:name=".Request_Charge"/>
         <service android:name=".Http_Background"
             android:enabled="true"
             android:launchMode="singleTop"
@@ -50,6 +54,12 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
         </service>
+        <activity android:name=".Accept_Request">
+            <intent-filter>
+                <action android:name="Accept_Request" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

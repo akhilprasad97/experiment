@@ -1,11 +1,22 @@
 package android.hmkcode.com.experiment;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -17,18 +28,22 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.Buffer;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import static android.hmkcode.com.experiment.MainActivity.*;
 
 /**
  * Created by akhilprasad97 on 17/1/18.
  */
 
-public class Http_Background extends Service{
+public class Http_Background extends Service implements LocationListener{
 
     public int counter = 4;
     HttpURLConnection connection = null;
+    LocationManager location;
+    Location coordinates;
+    OutputStream out;
 
     @Nullable
     @Override
@@ -45,32 +60,74 @@ public class Http_Background extends Service{
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(connection!=null)
+        if (connection != null)
             connection.disconnect();
     }
 
-    public class HttpCall extends AsyncTask<String, String, String>{
+    @Override
+    public void onLocationChanged(Location location) {
+        JSONObject json = new JSONObject();
+        SharedPreferences session = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+        try {
+            json.accumulate("longitude",coordinates.getLongitude());
+            json.accumulate("latitude",coordinates.getLatitude());
+            json.accumulate("user",session.getString(Username,"PEACE"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        String output = json.toString();
+        String fail = "fail";
+        counter++;
+        try {
+            out.write(output.getBytes());
+            out.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
+    public void onStatusChanged(String s, int i, Bundle bundle) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String s) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String s) {
+
+    }
+
+    public class HttpCall extends AsyncTask<String, String, String> {
 
         @Override
         protected String doInBackground(String... strings) {
             try {
-                URL url = new URL("http://192.168.1.111:8080");
-                connection = (HttpURLConnection)url.openConnection();
+                URL url = new URL("http://10.1.85.42:8000/backgroundLocation");
+                connection = (HttpURLConnection) url.openConnection();
 
-                Log.d("Hello","Wrold");
+                Log.d("Hello", "Wrold");
 
                 connection.setDoOutput(true);
                 connection.setChunkedStreamingMode(0);
 
-                OutputStream out = new BufferedOutputStream(connection.getOutputStream());
-                writeStream(out);
+                out = new BufferedOutputStream(connection.getOutputStream());
+                try {
+                    writeStream(out);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
 
                 InputStream in = new BufferedInputStream(connection.getInputStream());
                 return readStream(in);
             } catch (MalformedURLException e) {
                 e.printStackTrace();
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
             return null;
@@ -83,24 +140,32 @@ public class Http_Background extends Service{
 
             String line = "";
             try {
-                while((line = reader.readLine()) != null)
+                while ((line = reader.readLine()) != null)
                     buffer.append(line);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            Log.d("YOYO",buffer.toString());
+            Log.d("YOYO", buffer.toString());
             return buffer.toString();
         }
 
-        private void writeStream(OutputStream out) {
-            String output = "Sending"+counter;
-            counter++;
-            try {
-                out.write(output.getBytes());
-                out.flush();
-            } catch (IOException e) {
-                e.printStackTrace();
+        private void writeStream(OutputStream out) throws JSONException {
+            location = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            if (ActivityCompat.checkSelfPermission(Http_Background.this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(Http_Background.this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                            != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
             }
+            coordinates = location.getLastKnownLocation(location.NETWORK_PROVIDER);
+            onLocationChanged(coordinates);
         }
     }
 

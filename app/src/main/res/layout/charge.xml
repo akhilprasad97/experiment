@@ -26,7 +26,9 @@
         android:layout_marginEnd="51dp"
         android:text="Current Charge:"
         android:textAlignment="center"
-        android:textSize="14sp" />
+        android:textSize="14sp"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="51dp" />
 
     <Button
         android:id="@+id/start"
@@ -36,7 +38,9 @@
         android:layout_below="@+id/request"
         android:layout_marginStart="21dp"
         android:layout_marginTop="127dp"
-        android:text="Start Transfer" />
+        android:text="Start Transfer"
+        android:layout_marginLeft="21dp"
+        android:layout_alignParentLeft="true" />
 
     <Button
         android:id="@+id/abort"
@@ -44,7 +48,8 @@
         android:layout_height="wrap_content"
         android:layout_alignStart="@+id/currentCharge"
         android:layout_alignTop="@+id/start"
-        android:text="Abort Transfer" />
+        android:text="Abort Transfer"
+        android:layout_alignLeft="@+id/currentCharge" />
 
     <ProgressBar
         android:id="@+id/progress"
@@ -53,5 +58,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="68dp"
-        android:layout_toEndOf="@+id/start" />
+        android:layout_toEndOf="@+id/start"
+        android:layout_toRightOf="@+id/start" />
 </RelativeLayout>

@@ -27,24 +27,23 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
         //Log.d("msg", "onMessageReceived: " + remoteMessage.getData().get("message"));
-        NotificationCompat.Builder builder = new  NotificationCompat.Builder(this)
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("test")
-                .setContentText(remoteMessage.getData().get("message"));
-        NotificationManager manager = (NotificationManager)     getSystemService(NOTIFICATION_SERVICE);
-        manager.notify(0, builder.build());
         // TODO: Handle FCM messages here.
         // If the application is in the foreground handle both data and notification messages here.
         // Also if you intend on generating your own notifications as a result of a received FCM
         // message, here is where that should be initiated.
         Log.d("data ",remoteMessage.getData().toString());
-        if(remoteMessage.getNotification() != null){
-            JSONObject json = new JSONObject(remoteMessage.getData());
-            try {
-                String click_action = remoteMessage.getNotification().getClickAction();
-                sendNotification(click_action,String.valueOf(json.getDouble("longitude")),String.valueOf(json.getDouble("latitude")),json.getString("user"),remoteMessage.getData().get("charge").toString());
-            } catch (JSONException e) {
-                e.printStackTrace();
+        if(remoteMessage.getData().size()>0) {
+            if (remoteMessage.getNotification() != null) {
+                JSONObject json = new JSONObject(remoteMessage.getData());
+                try {
+                    String click_action = remoteMessage.getNotification().getClickAction();
+                    if(remoteMessage.getNotification().getClickAction().equals("Accept_Request"))
+                        sendNotification(click_action, String.valueOf(json.getDouble("longitude")), String.valueOf(json.getDouble("latitude")), json.getString("user"), remoteMessage.getData().get("charge"));
+                    if(remoteMessage.getNotification().getClickAction().equals("Request_Accepted"))
+                        sendNotification(click_action, String.valueOf(json.getDouble("longitude")), String.valueOf(json.getDouble("latitude")), json.getString("user"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -53,27 +52,26 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private void sendNotification(String click_action, String latitude, String longitude, String recepient, String charge){
-        Intent i;
-        if(click_action.equals("MainActivity")){
-            i = new Intent(this, MainActivity.class);
-            i.addFlags(i.FLAG_ACTIVITY_CLEAR_TOP);
-        }
-        else if (click_action.equals("Register")){
-            i = new Intent(this, Register.class);
-            i.addFlags(i.FLAG_ACTIVITY_CLEAR_TOP);
-        }
-        else if(click_action.equals("Login")){
-            i = new Intent(this, Login.class);
-            i.addFlags(i.FLAG_ACTIVITY_CLEAR_TOP);
-        }
-        else if (click_action.equals("Accept_Request")){
-            i = new Intent(this, Accept_Request.class);
+        Intent i = new Intent(click_action);
             i.putExtra("recepient",recepient);
             i.putExtra("charge_of_recepient",charge);
             i.putExtra("recepient_longitude",longitude);
             i.putExtra("recepient_latitude",latitude);
-            i.addFlags(i.FLAG_ACTIVITY_CLEAR_TOP);
-        }
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, i,
+                PendingIntent.FLAG_ONE_SHOT);
+
+        //PendingIntent pi = PendingIntent.getActivity(this, 0,i,PendingIntent.FLAG_ONE_SHOT);
+    }
+
+    private void sendNotification(String click_action, String latitude, String longitude, String donor){
+        Intent i = new Intent(click_action);
+        i.putExtra("recepient",donor);
+        i.putExtra("recepient_longitude",longitude);
+        i.putExtra("recepient_latitude",latitude);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, i,
+                PendingIntent.FLAG_ONE_SHOT);
 
         //PendingIntent pi = PendingIntent.getActivity(this, 0,i,PendingIntent.FLAG_ONE_SHOT);
     }

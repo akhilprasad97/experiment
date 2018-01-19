@@ -40,6 +40,11 @@ public class Accept_Request extends Activity{
     Button accept, reject;
     TextView chargeper;
 
+    String recepient_user;
+    String recepient_latitude;
+    String recepient_longitude;
+    String recepient_charge;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,10 +57,25 @@ public class Accept_Request extends Activity{
 
         Intent receiever = getIntent();
 
-        String recepient_user = receiever.getStringExtra("recepient");
+        recepient_user = "";
+
+        if (getIntent().getExtras() != null) {
+            recepient_user = getIntent().getExtras().getString("user");
+            recepient_latitude = getIntent().getExtras().getString("latitude");
+            recepient_longitude = getIntent().getExtras().getString("longitude");
+            recepient_charge = getIntent().getExtras().getString("charge");
+
+            for (String key : getIntent().getExtras().keySet()) {
+                String value = getIntent().getExtras().getString(key);
+                Log.d("USER IS REQUEST", "Key: " + key + " Value: " + value);
+            }
+
+        }
+
+
 
         //Log.d("Recepient",recepient);
-        Log.d("charge",recepient_user);
+        //Log.d("charge",recepient_user);
 
 
         user.setText(recepient_user);
@@ -136,9 +156,13 @@ public class Accept_Request extends Activity{
             try {
                 json.accumulate("donor",session.getString(Username,"PEACE"));
                 json.accumulate("id",session.getString(RegID,"PEACE"));
-                json.accumulate("recepient_latitude",0);
-                json.accumulate("recepient_longitude",0);
-                json.accumulate("recepient",session.getString(Recepient,"PEACE"));
+                json.accumulate("recepient_latitude",recepient_latitude);
+                json.accumulate("recepient_longitude",recepient_longitude);
+                json.accumulate("recepient",recepient_user);
+                json.accumulate("donor_dest_lat","0");
+                json.accumulate("donor_dest_lng","0");
+                json.accumulate("recepient_charge",recepient_charge);
+                json.accumulate("donor_charge","1000");
                 out.write(json.toString().getBytes());
                 out.flush();
             } catch (JSONException e) {

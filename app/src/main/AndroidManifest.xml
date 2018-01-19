@@ -54,6 +54,13 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
         </service>
+        <activity android:name=".Request_Accepted">
+            <intent-filter>
+                <action android:name="Request_Accepted" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".Accept_Request">
             <intent-filter>
                 <action android:name="Accept_Request" />
